@@ -1,0 +1,29 @@
+name: check
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    name: format & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: System Info
+        run: |
+          uname -a
+          nix --version
+
+      - name: format
+        run: nix build -L --no-link --show-trace .#checks.x86_64-linux.format
+
+      - name: rustc0
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.rustc0
+
+      - name: r0vm
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.r0vm
