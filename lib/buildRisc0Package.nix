@@ -6,6 +6,7 @@
 , writeShellApplication
 , cargo
 , openssl
+, lib
 }:
 attrs:
 
@@ -47,7 +48,7 @@ let
   };
 in
 
-rustPlatform.buildRustPackage (attrs // {
+rustPlatform.buildRustPackage (lib.mergeAttrsConcatenateValues attrs {
   nativeBuildInputs = [
     pkg-config
     cargo-risczero
