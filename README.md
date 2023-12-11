@@ -29,7 +29,7 @@ Start with adding `risc0pkgs` as an input in your top-level `flake.nix` and defi
         RISC0_DEV_MODE = 1;
         inputsFrom = [ self.packages.${system}.risc0package ];
         nativeBuildInputs = [
-          inputs.risc0pkgs.packages.${system}.r0vm
+          risc0pkgs.packages.${system}.r0vm
         ];
       };
     };
