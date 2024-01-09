@@ -21,5 +21,9 @@
         nixpkgs-fmt --check .
         touch $out
       '';
+      templates.default = {
+        path = ./templates/default;
+        description = "risc0 project template";
+      };
     };
 }
