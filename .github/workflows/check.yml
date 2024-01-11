@@ -6,9 +6,11 @@ on:
     branches: [main]
 
 jobs:
-  checks:
-    name: format & build
-    runs-on: ubuntu-latest
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
@@ -20,10 +22,21 @@ jobs:
           nix --version
 
       - name: format
+        if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#checks.x86_64-linux.format
 
       - name: rustc0
+        if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.rustc0
 
       - name: r0vm
+        if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.r0vm
+
+      - name: rustc0
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.rustc0
+
+      - name: r0vm
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.r0vm

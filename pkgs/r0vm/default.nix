@@ -1,9 +1,11 @@
 { rustPlatform
+, stdenv
 , fetchFromGitHub
 , pkg-config
 , perl
 , openssl
 , lib
+, darwin
 }:
 rustPlatform.buildRustPackage rec {
   pname = "r0vm";
@@ -26,7 +28,16 @@ rustPlatform.buildRustPackage rec {
     perl
   ];
 
-  buildInputs = [ openssl.dev ];
+  # Workaround for https://github.com/NixOS/nixpkgs/issues/166205
+  env = lib.optionalAttrs stdenv.cc.isClang {
+    NIX_LDFLAGS = "-l${stdenv.cc.libcxx.cxxabi.libName}";
+  };
+
+  buildInputs = [
+    openssl.dev
+  ] ++ lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk.frameworks.SystemConfiguration
+  ];
 
   doCheck = false;
 

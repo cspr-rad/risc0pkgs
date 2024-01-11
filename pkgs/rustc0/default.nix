@@ -1,5 +1,6 @@
 { stdenv
 , autoPatchelfHook
+, fixDarwinDylibNames
 , lib
 , zlib
 , gcc
@@ -42,15 +43,33 @@ stdenv.mkDerivation rec {
     ];
   };
 
-  src = builtins.fetchurl {
-    url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-x86_64-unknown-linux-gnu.tar.gz";
-    sha256 = "sha256-ilCDZk+YY8lUFqdITR1w1OxBsjNVfUlYUTQDzk2/D9s=";
-  };
+  src =
+    if stdenv.hostPlatform.isLinux
+    then
+      builtins.fetchurl
+        {
+          url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-x86_64-unknown-linux-gnu.tar.gz";
+          sha256 = "sha256-ilCDZk+YY8lUFqdITR1w1OxBsjNVfUlYUTQDzk2/D9s=";
+        }
+    else if stdenv.hostPlatform.system == "x86_64-darwin"
+    then
+      builtins.fetchurl
+        {
+          url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-x86_64-apple-darwin.tar.gz";
+          sha256 = "sha256:1nhnsbclpmpsakf5vz77jbhh4ak7k30frh6hp4lg6aasmvif0fp3";
+        }
+    else
+      builtins.fetchurl {
+        url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-aarch64-apple-darwin.tar.gz";
+        sha256 = "sha256:0vvf6j14vm9n3kb39m0xdzfc7fdycwr3iqzlnyy7razgi3i5vk9l";
+      };
+
   sourceRoot = ".";
 
   nativeBuildInputs = [
-    autoPatchelfHook
-  ];
+  ]
+  ++ lib.optional stdenv.hostPlatform.isLinux autoPatchelfHook
+  ++ lib.optional stdenv.hostPlatform.isDarwin fixDarwinDylibNames;
 
   buildInputs = [ zlib gcc.cc.lib ];
 
