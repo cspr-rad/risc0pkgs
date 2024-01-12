@@ -7,6 +7,8 @@
 , cargo
 , openssl
 , lib
+, stdenv
+, darwin
 }:
 attrs:
 
@@ -57,5 +59,9 @@ rustPlatform.buildRustPackage (lib.mergeAttrsConcatenateValues attrs {
     cargo-mock
     lld-mock
   ];
-  buildInputs = [ openssl.dev ];
+  buildInputs = [
+    openssl.dev
+  ] ++ lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk.frameworks.SystemConfiguration
+  ];
 })
