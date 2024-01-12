@@ -40,3 +40,15 @@ jobs:
       - name: r0vm
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.r0vm
+
+      - name: template
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          git config --global init.defaultBranch main
+          ./scripts/use-template.sh
+
+      - name: template
+        if: matrix.os == 'macos-latest'
+        run: |
+          git config --global init.defaultBranch main
+          ./scripts/use-template.sh
