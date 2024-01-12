@@ -73,6 +73,8 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ zlib gcc.cc.lib ];
 
+  dontStrip = stdenv.hostPlatform.isDarwin;
+
   installPhase = ''
     runHook preInstall
     mkdir -p $out/bin
