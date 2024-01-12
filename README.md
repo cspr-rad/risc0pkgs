@@ -13,7 +13,7 @@ nix flake init -t github:cspr-rad/risc0pkgs
 git init
 git add -A
 
-nix build .#risc0prover
+nix build .#risc0package
 ```
 
 Note: Change the `system` to `aarch64-darwin` if you're on macOS.
