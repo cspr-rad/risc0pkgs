@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, macos-14]
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
@@ -33,6 +33,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.r0vm
 
+      - name: template
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          git config --global init.defaultBranch main
+          ./scripts/use-template.sh
+
       - name: rustc0
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.rustc0
@@ -42,13 +48,21 @@ jobs:
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.r0vm
 
       - name: template
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest'
         run: |
           git config --global init.defaultBranch main
           ./scripts/use-template.sh
 
+      - name: rustc0
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.rustc0
+
+      - name: r0vm
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.r0vm
+
       - name: template
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-14'
         run: |
           git config --global init.defaultBranch main
           ./scripts/use-template.sh
