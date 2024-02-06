@@ -1,8 +1,19 @@
 {
   description = "A collection of risc0 related packages";
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+  nixConfig = {
+    extra-substituters = [
+      "https://risc0pkgs.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "risc0pkgs.cachix.org-1:EY5UazX0/Q7hGCm6xQSgKX6UkpzyOf07pxjfhhRK7kE="
+    ];
   };
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+  };
+
   outputs = { self, nixpkgs, ... }:
     let
       eachSystem = systems: f:

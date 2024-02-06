@@ -1,12 +1,20 @@
 {
   description = "risc0 project template";
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    risc0pkgs = {
-      url = "github:cspr-rad/risc0pkgs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+
+  nixConfig = {
+    extra-substituters = [
+      "https://risc0pkgs.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "risc0pkgs.cachix.org-1:EY5UazX0/Q7hGCm6xQSgKX6UkpzyOf07pxjfhhRK7kE="
+    ];
   };
+
+  inputs = {
+    nixpkgs.follows = "risc0pkgs/nixpkgs";
+    risc0pkgs.url = "github:cspr-rad/risc0pkgs";
+  };
+
   outputs = { self, nixpkgs, risc0pkgs }:
     let
       systems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
