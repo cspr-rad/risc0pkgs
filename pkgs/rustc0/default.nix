@@ -65,6 +65,13 @@ stdenv.mkDerivation rec {
           url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-aarch64-apple-darwin.tar.gz";
           sha256 = "sha256:0vvf6j14vm9n3kb39m0xdzfc7fdycwr3iqzlnyy7razgi3i5vk9l";
         }
+    else if stdenv.hostPlatform.system == "aarch64-linux"
+    then
+      builtins.fetchurl
+        {
+          url = "file://./rust-toolchain-aarch64-unknown-linux-gnu.tar.gz";
+          sha256 = "sha256:d9c6a874994adc3dbd5af275d0a4a4672792c099a8bc6358406da0073dc95297";
+        }
     else
       builtins.abort "Toolchain not available.";
 
