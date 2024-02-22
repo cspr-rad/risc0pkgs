@@ -64,6 +64,7 @@
           inherit (risc0pkgs) r0vm;
           inherit rustc0;
         };
+
         formatter = pkgs.nixpkgs-fmt;
 
         checks.format = pkgs.runCommand "format-check" { buildInputs = [ pkgs.nixpkgs-fmt ]; } ''
@@ -72,5 +73,7 @@
           nixpkgs-fmt --check .
           touch $out
         '';
+
+        herculesCI.ciSystems = [ "x86_64-linux" ];
       });
 }
