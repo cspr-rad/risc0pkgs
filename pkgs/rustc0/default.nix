@@ -1,86 +1,30 @@
-{ stdenv
-, autoPatchelfHook
-, fixDarwinDylibNames
-, lib
-, zlib
-, gcc
+{ rustc
+, fetchpatch
 }:
 
-stdenv.mkDerivation rec {
-  pname = "rustc0";
-  version = "v2023-08-10.1";
-  meta = with lib; {
-    homepage = "https://github.com/risc0/rust";
-    description = "risc0's Rust compiler";
-    platforms = [
-      # Platforms with host tools from
-      # https://doc.rust-lang.org/nightly/rustc/platform-support.html
-      "x86_64-darwin"
-      "i686-darwin"
-      "aarch64-darwin"
-      "i686-freebsd13"
-      "x86_64-freebsd13"
-      "x86_64-solaris"
-      "aarch64-linux"
-      "armv6l-linux"
-      "armv7l-linux"
-      "i686-linux"
-      "loongarch64-linux"
-      "powerpc64-linux"
-      "powerpc64le-linux"
-      "riscv64-linux"
-      "s390x-linux"
-      "x86_64-linux"
-      "aarch64-netbsd"
-      "armv7l-netbsd"
-      "i686-netbsd"
-      "powerpc-netbsd"
-      "x86_64-netbsd"
-      "i686-openbsd"
-      "x86_64-openbsd"
-      "i686-windows"
-      "x86_64-windows"
-    ];
-  };
+# How to update the risc0's rustc derivation:
+# 1. Find the latest nixpkgs revision that includes the cached rustc version that risc0's rust is based on:
+# 1.1 Go to https://hydra.nixos.org/job/nixpkgs/trunk/rustc.x86_64-linux and grep for the version
+# 1.2 Click the build number '#' for the respective version
+# 1.3 Click the 'Inputs' tab and copy the nixpkgs revision, then update the nixpkgs-risc0-rustc input in the flake.nix, by replacing the revision hash
 
-  src =
-    if stdenv.hostPlatform.isLinux
-    then
-      builtins.fetchurl
-        {
-          url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-x86_64-unknown-linux-gnu.tar.gz";
-          sha256 = "sha256-ilCDZk+YY8lUFqdITR1w1OxBsjNVfUlYUTQDzk2/D9s=";
-        }
-    else if stdenv.hostPlatform.system == "x86_64-darwin"
-    then
-      builtins.fetchurl
-        {
-          url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-x86_64-apple-darwin.tar.gz";
-          sha256 = "sha256:1nhnsbclpmpsakf5vz77jbhh4ak7k30frh6hp4lg6aasmvif0fp3";
-        }
-    else
-      builtins.fetchurl {
-        url = "https://github.com/risc0/rust/releases/download/test-release-2/rust-toolchain-aarch64-apple-darwin.tar.gz";
-        sha256 = "sha256:0vvf6j14vm9n3kb39m0xdzfc7fdycwr3iqzlnyy7razgi3i5vk9l";
-      };
+# 2. Update the version attribute below.
 
-  sourceRoot = ".";
-
-  nativeBuildInputs = [
-  ]
-  ++ lib.optional stdenv.hostPlatform.isLinux autoPatchelfHook
-  ++ lib.optional stdenv.hostPlatform.isDarwin fixDarwinDylibNames;
-
-  buildInputs = [ zlib gcc.cc.lib ];
-
-  dontStrip = stdenv.hostPlatform.isDarwin;
-
-  installPhase = ''
-    runHook preInstall
-    mkdir -p $out/bin
-    cp -r lib $out/lib
-    install -m755 bin/rustc $out/bin/rustc
-    install -m755 bin/rustdoc $out/bin/rustdoc
-    runHook postInstall
-  '';
-}
+# Alternative:
+# 2. Obtain the diff file that includes all the changes that risc0's fork introduces:
+# 2.1 Go to https://github.com/rust-lang/rust/compare/master...risc0:rust:risc0
+# 2.2 Change the base repository's branch/tag to the version that risc0's release is based on
+# 2.3 Change the head repository's branch/tag to the risc0 release version
+# 2.4 Download the diff by appending `.diff` to the URL e.g. https://github.com/rust-lang/rust/compare/1.70.0...risc0:rust:v2024-01-31.1.diff
+# 2.5 Add the diff file next to this file (default.nix)
+# 2.6 Modify the diff and remove the .github/workflows/ci.yml changes
+rustc.overrideAttrs (final: prev: {
+  version = "v2024-01-31.1";
+  patches = (prev.patches or [ ]) ++ [
+    (fetchpatch {
+      url = "https://github.com/rust-lang/rust/compare/${prev.version}...risc0:rust:${final.version}.diff";
+      hash = "sha256-kUCb4SXq7T0vNctMfLywjvEtlEdRRQhsy3RVP+/0Wmo=";
+      excludes = [ ".github/workflows/ci.yml" ];
+    })
+  ];
+})
