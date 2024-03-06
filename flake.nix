@@ -52,17 +52,14 @@
     // eachDefaultSystem (system:
       let
         pkgs-risc0-rustc = inputs.nixpkgs-risc0-rustc.legacyPackages.${system};
-        rustc0 = pkgs-risc0-rustc.callPackage ./pkgs/rustc0 { };
-
         pkgs = nixpkgs.legacyPackages.${system};
-        risc0pkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
-        lib = pkgs.recurseIntoAttrs (pkgs.callPackage ./lib { pkgs = pkgs // risc0pkgs // { inherit rustc0; }; });
+        risc0pkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { inherit pkgs-risc0-rustc; });
+        lib = pkgs.recurseIntoAttrs (pkgs.callPackage ./lib { pkgs = pkgs // risc0pkgs; });
       in
       {
         inherit lib;
         packages = {
-          inherit (risc0pkgs) r0vm;
-          inherit rustc0;
+          inherit (risc0pkgs) r0vm rustc0;
         };
 
         formatter = pkgs.nixpkgs-fmt;
