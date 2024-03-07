@@ -11,7 +11,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     # Latest nixpkgs revision including the cached rustc version that risc0's rustc is based on.
     # For further details refer to the comments in pkgs/rustc0/default.nix
     nixpkgs-risc0-rustc.url = "github:NixOS/nixpkgs/34d8dbb93ddf91fb665b186d1c832b2d2f8e7ff7";
@@ -44,6 +44,7 @@
       ];
     in
     {
+      herculesCI.ciSystems = [ "x86_64-linux" ];
       templates.default = {
         path = ./templates/default;
         description = "risc0 project template";
@@ -52,17 +53,14 @@
     // eachDefaultSystem (system:
       let
         pkgs-risc0-rustc = inputs.nixpkgs-risc0-rustc.legacyPackages.${system};
-        rustc0 = pkgs-risc0-rustc.callPackage ./pkgs/rustc0 { };
-
         pkgs = nixpkgs.legacyPackages.${system};
-        risc0pkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
-        lib = pkgs.recurseIntoAttrs (pkgs.callPackage ./lib { pkgs = pkgs // risc0pkgs // { inherit rustc0; }; });
+        risc0pkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { inherit pkgs-risc0-rustc; });
+        lib = pkgs.recurseIntoAttrs (pkgs.callPackage ./lib { pkgs = pkgs // risc0pkgs; });
       in
       {
         inherit lib;
         packages = {
-          inherit (risc0pkgs) r0vm;
-          inherit rustc0;
+          inherit (risc0pkgs) r0vm rustc0;
         };
 
         formatter = pkgs.nixpkgs-fmt;
@@ -73,7 +71,5 @@
           nixpkgs-fmt --check .
           touch $out
         '';
-
-        herculesCI.ciSystems = [ "x86_64-linux" ];
       });
 }

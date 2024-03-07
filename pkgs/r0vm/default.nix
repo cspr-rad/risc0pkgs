@@ -9,12 +9,12 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "r0vm";
-  version = "0.19.1";
+  version = "0.21.0-rc.1";
   src = fetchFromGitHub {
     owner = "risc0";
     repo = "risc0";
     rev = "v${version}";
-    sha256 = "sha256-TR6Yfxa4cA53eAPPs5MP/4Kh1z8/ZpsdWugp2bdPHqM=";
+    sha256 = "sha256-dT+lhlaVXapnQSe/TWCLyZ0vvkWoSPjFkNLcM7AYHDs=";
   };
   meta = with lib; {
     homepage = "https://github.com/risc0/risc0";
@@ -41,26 +41,16 @@ rustPlatform.buildRustPackage rec {
 
   doCheck = false;
 
-  cargoPatches = [
-    ./add-Cargo.lock.patch
-  ];
+  cargoHash = "sha256-CpqhF+FBnhvKU2X8di+LR7/t7EajYgXzkBS3a+mfzTc=";
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "ark-secret-scalar-0.0.2" = "sha256-Nbf77KSsAjDKiFIP5kgzl23fRB+68x1EirNuZlS7jeM=";
-      "common-0.1.0" = "sha256-3OKBPpk0exdlV0N9rJRVIncSrkwdI8bkYL2QNsJl+sY=";
-      "fflonk-0.1.0" = "sha256-+BvZ03AhYNP0D8Wq9EMsP+lSgPA6BBlnWkoxTffVLwo=";
-      "frame-support-4.0.0-dev" = "sha256-bHGR9Hl0JUxYeZdha9G7ISue4M2LMt+dGyw65CX99TM=";
-    };
-  };
   postPatch =
     let
-      rev = "505295b963c97db2afffe58f4b0cb4721e396b90";
+      # see https://github.com/risc0/risc0/blob/v0.20.0-rc.1/risc0/circuit/recursion/build.rs
+      sha256Hash = "3504a2542626acb974dea1ae5542c90c032c4ef42f230977f40f245442a1ec23";
       recursionZkr = builtins.fetchurl {
         name = "recursion_zkr.zip";
-        url = "https://github.com/risc0/risc0/raw/${rev}/risc0/circuit/recursion/src/recursion_zkr.zip";
-        sha256 = "sha256:0rvmgqgkhas39yg1jll022l29s05b5b7f17pyvzi9nbwv2k667d0";
+        url = "https://risc0-artifacts.s3.us-west-2.amazonaws.com/zkr/${sha256Hash}.zip";
+        sha256 = "sha256:08zcl515890gyivhj8rgyi72q0qcr515bbm1vrsbkb164raa411m";
       };
     in
     ''
