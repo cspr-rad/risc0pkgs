@@ -44,6 +44,7 @@
       ];
     in
     {
+      herculesCI.ciSystems = [ "x86_64-linux" ];
       templates.default = {
         path = ./templates/default;
         description = "risc0 project template";
@@ -71,6 +72,5 @@
           touch $out
         '';
 
-        herculesCI.ciSystems = [ "x86_64-linux" ];
       });
 }
