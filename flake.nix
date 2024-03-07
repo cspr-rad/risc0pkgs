@@ -11,7 +11,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     # Latest nixpkgs revision including the cached rustc version that risc0's rustc is based on.
     # For further details refer to the comments in pkgs/rustc0/default.nix
     nixpkgs-risc0-rustc.url = "github:NixOS/nixpkgs/34d8dbb93ddf91fb665b186d1c832b2d2f8e7ff7";
@@ -71,6 +71,5 @@
           nixpkgs-fmt --check .
           touch $out
         '';
-
       });
 }
