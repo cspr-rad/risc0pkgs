@@ -1,7 +1,7 @@
 { rustPlatform
 , pkg-config
 , cargo-risczero
-, rustc0
+, rustc
 , lld
 , writeShellApplication
 , cargo
@@ -24,7 +24,7 @@ let
         printf "risc0\n"
       elif [[ "$1" = "+risc0" ]]
       then
-        printf "${rustc0}/bin/rustc"
+        printf "${rustc}/bin/rustc"
       fi
     '';
   };
@@ -54,7 +54,7 @@ rustPlatform.buildRustPackage (lib.mergeAttrsConcatenateValues attrs {
   nativeBuildInputs = [
     pkg-config
     cargo-risczero
-    rustc0
+    rustc
     rustup-mock
     cargo-mock
     lld-mock
