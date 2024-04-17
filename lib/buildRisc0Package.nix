@@ -1,21 +1,21 @@
-{ rustPlatform
+{ makeRustPlatform
 , pkg-config
 , cargo-risczero
-, rustc
-, lld
+, rust-bin
 , writeShellApplication
-, cargo
 , openssl
 , lib
 , stdenv
 , darwin
 }:
-attrs:
+extraBuildRustPackageAttrs@{ nativeBuildInputs ? [ ], preBuild ? "", buildInputs ? [ ], ... }:
 
 let
+  toolchain = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
+    extensions = [ "rust-src" ];
+  });
   rustup-mock = writeShellApplication {
     name = "rustup";
-    runtimeInputs = [ ];
     text = ''
       # the buildscript uses rustup toolchain to check
       # whether the risc0 toolchain was installed
@@ -24,44 +24,28 @@ let
         printf "risc0\n"
       elif [[ "$1" = "+risc0" ]]
       then
-        printf "${rustc}/bin/rustc"
+        printf "${toolchain}/bin/rustc"
       fi
     '';
   };
-  cargo-mock = writeShellApplication {
-    name = "cargo";
-    runtimeInputs = [ cargo ];
-    text = ''
-      # ignore +risc0
-      if [[ "$1" = "+risc0" ]]
-      then
-        cargo "''${@:2}"
-      else
-        cargo "$@"
-      fi
-    '';
-  };
-  lld-mock = writeShellApplication {
-    name = "rust-lld";
-    runtimeInputs = [ lld ];
-    text = ''
-      ld.lld "$@"
-    '';
-  };
+  extraBuildRustPackageAttrsNoArgs = builtins.removeAttrs extraBuildRustPackageAttrs [ "buildInputs" "nativeBuildInputs" "preBuild" ];
 in
 
-rustPlatform.buildRustPackage (lib.mergeAttrsConcatenateValues attrs {
-  nativeBuildInputs = [
+(makeRustPlatform { rustc = toolchain; cargo = toolchain; }).buildRustPackage (lib.recursiveUpdate extraBuildRustPackageAttrsNoArgs {
+  nativeBuildInputs = lib.unique ([
     pkg-config
     cargo-risczero
-    rustc
     rustup-mock
-    cargo-mock
-    lld-mock
-  ];
-  buildInputs = [
+  ] ++ nativeBuildInputs);
+  preBuild = ''
+    export RISC0_RUST_SRC=${toolchain}/lib/rustlib/src/rust;
+    ${preBuild}
+  '';
+  buildInputs = lib.unique ([
     openssl.dev
   ] ++ lib.optionals stdenv.isDarwin [
     darwin.apple_sdk.frameworks.SystemConfiguration
-  ];
+  ] ++ buildInputs);
+  doCheck = false;
+  auditable = false;
 })

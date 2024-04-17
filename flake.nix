@@ -12,9 +12,13 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs, ... }:
+  outputs = inputs@{ self, nixpkgs, rust-overlay, ... }:
     let
       eachSystem = systems: f:
         let
@@ -49,7 +53,7 @@
     }
     // eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
         risc0pkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
         lib = pkgs.recurseIntoAttrs (pkgs.callPackage ./lib { pkgs = pkgs; });
       in
