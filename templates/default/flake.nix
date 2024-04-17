@@ -12,7 +12,8 @@
 
   inputs = {
     nixpkgs.follows = "risc0pkgs/nixpkgs";
-    risc0pkgs.url = "github:cspr-rad/risc0pkgs";
+    # Always use the commit hash that is being updated
+    risc0pkgs.url = "github:cspr-rad/risc0pkgs/90301825c2b393b8534bac0765cd2f43645f66b3";
   };
 
   outputs = { self, nixpkgs, risc0pkgs }:
@@ -31,8 +32,7 @@
               pname = "risc0package";
               version = "0.0.1";
               src = ./.;
-              doCheck = false;
-              cargoSha256 = "sha256-oY52S/Yljkn9lfH8oA8+XkCwAwOaOBzIT5uLCMZZYxI=";
+              cargoHash = "sha256-bIIapns/yVyqK9PCi50N4mvhdUc+b6C17+MEBK0PuSE=";
               nativeBuildInputs = [ pkgs.makeWrapper ];
               postInstall = ''
                 wrapProgram $out/bin/host \
@@ -47,7 +47,7 @@
         in
         {
           default = pkgs.mkShell {
-            RISC0_DEV_MODE = 1;
+            #RISC0_DEV_MODE = 1;
             inputsFrom = [ self.packages.${system}.risc0package ];
             nativeBuildInputs = [ risc0pkgs.packages.${system}.r0vm ];
           };
