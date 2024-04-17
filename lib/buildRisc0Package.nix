@@ -48,4 +48,5 @@ in
   ] ++ buildInputs);
   doCheck = false;
   auditable = false;
+  passthru = { inherit toolchain; };
 })
