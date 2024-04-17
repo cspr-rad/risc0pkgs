@@ -13,7 +13,7 @@
   inputs = {
     nixpkgs.follows = "risc0pkgs/nixpkgs";
     # Always use the commit hash that is being updated
-    risc0pkgs.url = "github:cspr-rad/risc0pkgs/90301825c2b393b8534bac0765cd2f43645f66b3";
+    risc0pkgs.url = "github:cspr-rad/risc0pkgs/9b72640223c1c7d305581c70900a22294d7a5667";
   };
 
   outputs = { self, nixpkgs, risc0pkgs }:
@@ -47,7 +47,8 @@
         in
         {
           default = pkgs.mkShell {
-            #RISC0_DEV_MODE = 1;
+            RISC0_RUST_SRC = "${self.packages.${system}.risc0package.toolchain}/lib/rustlib/src/rust";
+            RISC0_DEV_MODE = 1;
             inputsFrom = [ self.packages.${system}.risc0package ];
             nativeBuildInputs = [ risc0pkgs.packages.${system}.r0vm ];
           };
