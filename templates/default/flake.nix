@@ -13,7 +13,7 @@
   inputs = {
     nixpkgs.follows = "risc0pkgs/nixpkgs";
     # Always use the commit hash that is being updated
-    risc0pkgs.url = "github:cspr-rad/risc0pkgs/9b72640223c1c7d305581c70900a22294d7a5667";
+    risc0pkgs.url = "github:cspr-rad/risc0pkgs";
   };
 
   outputs = { self, nixpkgs, risc0pkgs }:
