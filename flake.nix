@@ -46,6 +46,7 @@
     in
     {
       herculesCI.ciSystems = [ "x86_64-linux" ];
+      overlays.default = import ./overlay.nix;
       templates.default = {
         path = ./templates/default;
         description = "risc0 project template";
@@ -53,14 +54,19 @@
     }
     // eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
-        risc0pkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [
+            (import rust-overlay)
+            self.overlays.default
+          ];
+        };
         lib = pkgs.recurseIntoAttrs (pkgs.callPackage ./lib { pkgs = pkgs; });
       in
       {
-        inherit lib;
+        inherit (pkgs) lib;
         packages = {
-          inherit (risc0pkgs) r0vm;
+          inherit (pkgs) r0vm;
         };
 
         formatter = pkgs.nixpkgs-fmt;
